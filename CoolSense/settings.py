@@ -19,7 +19,7 @@ SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "insecure-dev-key")
 # DEBUG
 # ================================
 DEBUG = True
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0', '*']  # '*' apenas para desenvolvimento
 
 
 # ================================
@@ -32,7 +32,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
     'core',
+    'sensors',
 ]
 
 
@@ -92,8 +94,16 @@ DATABASES = {
 # ================================
 MONGO_URI = os.environ.get("MONGO_URI", "mongodb://mongo:27017/coolsense")
 
-mongo_client = MongoClient(MONGO_URI)
-mongo_db = mongo_client["coolsense"]
+try:
+    mongo_client = MongoClient(MONGO_URI, serverSelectionTimeoutMS=5000)
+    mongo_db = mongo_client["coolsense"]
+    # Testa a conexão
+    mongo_client.server_info()
+except Exception as e:
+    print(f"Warning: Could not connect to MongoDB: {e}")
+    print("MongoDB connection will be retried when needed.")
+    mongo_client = None
+    mongo_db = None
 
 
 # ================================
@@ -123,3 +133,22 @@ STATIC_URL = 'static/'
 
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+# ================================
+# REST FRAMEWORK
+# ================================
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 20,
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.AllowAny',  # Permite acesso sem autenticação (apenas para desenvolvimento)
+    ],
+    'DEFAULT_RENDERER_CLASSES': [
+        'rest_framework.renderers.JSONRenderer',
+        'rest_framework.renderers.BrowsableAPIRenderer',  # Para facilitar testes
+    ],
+    'DEFAULT_PARSER_CLASSES': [
+        'rest_framework.parsers.JSONParser',
+    ],
+}
