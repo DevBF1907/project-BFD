@@ -8,7 +8,6 @@ from .permissions import IsAdminOrTecnico
 from rest_framework.serializers import ModelSerializer
 
 
-
 class IsAdmin(BasePermission):
     def has_permission(self, request, view):
         return (
@@ -31,7 +30,6 @@ class IsCliente(BasePermission):
             request.user.is_authenticated
             and request.user.role == "CLIENTE"
         )
-
 
 
 User = get_user_model()
@@ -58,15 +56,12 @@ class LojaSerializer(ModelSerializer):
 
 
 class UserViewSet(ModelViewSet):
-
-
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = [IsAdmin]
 
 
 class LojaViewSet(ModelViewSet):
-  
     queryset = Loja.objects.all()
     serializer_class = LojaSerializer
 
@@ -90,7 +85,6 @@ class LojaViewSet(ModelViewSet):
         return Loja.objects.none()
 
 
-
 def pode_ver_loja(user, loja_id) -> bool:
     if user.role == "ADMIN":
         return True
@@ -105,9 +99,7 @@ def pode_ver_loja(user, loja_id) -> bool:
 
 
 class AparelhoViewSet(ModelViewSet):
-
-    
-    queryset = Aparelho.objects.all()   
+    queryset = Aparelho.objects.all()
     serializer_class = AparelhoSerializer
     permission_classes = [IsAdminOrTecnico]
 
